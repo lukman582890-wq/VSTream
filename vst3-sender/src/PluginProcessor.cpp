@@ -48,3 +48,8 @@ juce::AudioProcessorEditor* VSTreamAudioProcessor::createEditor()
 {
     return new VSTreamAudioProcessorEditor(*this);
 }
+
+juce::AudioProcessor* JUCE_CALLTYPE createPluginFilter()
+{
+    return new VSTreamAudioProcessor();
+}
