@@ -39,7 +39,7 @@ void VSTreamAudioProcessorEditor::resized()
     meterLabel.setBounds(20, 205, getWidth()-40, 25);
 }
 void VSTreamAudioProcessorEditor::timerCallback() { updateStatus(); }
-void void VSTreamAudioProcessorEditor::updateStatus()
+void VSTreamAudioProcessorEditor::updateStatus()
 {
     const bool active = processor.isStreaming();
     streamButton.setButtonText(active ? "STOP STREAM" : "START STREAM");
