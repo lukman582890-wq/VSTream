@@ -39,4 +39,14 @@ void VSTreamAudioProcessorEditor::resized()
     meterLabel.setBounds(20, 205, getWidth()-40, 25);
 }
 void VSTreamAudioProcessorEditor::timerCallback() { updateStatus(); }
-void VSTreamAudioProcessorEditorEditor::updateStatus() {}
+void void VSTreamAudioProcessorEditor::updateStatus()
+{
+    const bool active = processor.isStreaming();
+    streamButton.setButtonText(active ? "STOP STREAM" : "START STREAM");
+    statusLabel.setText(active ? "● STREAMING" : "○ STOPPED", juce::dontSendNotification);
+    linkLabel.setText(active ? processor.getStreamUrl() : "Start a stream to generate a link",
+                      juce::dontSendNotification);
+    const auto peak = processor.getInputPeak();
+    const auto db = juce::Decibels::gainToDecibels(juce::jmax(peak, 0.000001f));
+    meterLabel.setText("INPUT " + juce::String(db, 1) + " dB", juce::dontSendNotification);
+}
