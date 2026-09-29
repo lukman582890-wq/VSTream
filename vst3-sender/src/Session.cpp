@@ -8,13 +8,26 @@ namespace vstream {
 
 static std::string getLocalHostAddress()
 {
-    for (const auto& address : juce::IPAddress::getLocalAddresses())
+    const auto addresses = juce::IPAddress::getAllAddresses(false);
+    for (const auto& address : addresses)
     {
         const auto text = address.toString();
-        if (text != "127.0.0.1" && !text.startsWith("169.254."))
+        if (text == "127.0.0.1" || text.startsWith("169.254.") || text.isEmpty())
+            continue;
+
+        const bool privateV4 = text.startsWith("10.")
+            || text.startsWith("192.168.")
+            || text.startsWith("172.16.") || text.startsWith("172.17.")
+            || text.startsWith("172.18.") || text.startsWith("172.19.")
+            || text.startsWith("172.2") || text.startsWith("172.30.")
+            || text.startsWith("172.31.");
+
+        if (privateV4)
             return text.toStdString();
     }
-    return "127.0.0.1";
+
+    const auto fallback = juce::IPAddress::getLocalAddress(false).toString();
+    return fallback.isEmpty() ? std::string("127.0.0.1") : fallback.toStdString();
 }
 
 Session createLocalSession(const std::string& hostAddress)
