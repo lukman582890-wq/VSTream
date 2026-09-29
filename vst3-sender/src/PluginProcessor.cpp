@@ -10,8 +10,9 @@ VSTreamAudioProcessor::VSTreamAudioProcessor()
 
 void VSTreamAudioProcessor::prepareToPlay(double sampleRate, int)
 {
-    ringBuffer = std::make_unique<vstream::AudioRingBuffer>(static_cast<std::size_t>(sampleRate * 2.0));
+    ringBuffer = std::make_unique<vstream::AudioRingBuffer>(static_cast<std::size_t>(sampleRate * 4.0));
 }
+
 void VSTreamAudioProcessor::releaseResources() {}
 
 bool VSTreamAudioProcessor::isBusesLayoutSupported(const BusesLayout& layouts) const
@@ -30,8 +31,19 @@ void VSTreamAudioProcessor::processBlock(juce::AudioBuffer<float>& buffer, juce:
     inputPeak.store(peak, std::memory_order_relaxed);
 
     if (streaming.load(std::memory_order_relaxed))
-        for (int ch = 0; ch < buffer.getNumChannels(); ++ch)
-            ringBuffer->push(buffer.getReadPointer(ch), static_cast<std::size_t>(buffer.getNumSamples()));
+    {
+        const int channels = juce::jmin(2, buffer.getNumChannels());
+        const float* channelData[2] = {
+            channels > 0 ? buffer.getReadPointer(0) : nullptr,
+            channels > 1 ? buffer.getReadPointer(1) : nullptr
+        };
+
+        if (channels == 1)
+            channelData[1] = channelData[0];
+
+        ringBuffer->pushInterleaved(channelData, 2,
+                                    static_cast<std::size_t>(buffer.getNumSamples()));
+    }
 }
 
 void VSTreamAudioProcessor::setStreaming(bool enabled)
@@ -49,6 +61,7 @@ void VSTreamAudioProcessor::setStreaming(bool enabled)
         {
             streamUrl.clear();
             sessionId.clear();
+            streaming.store(false, std::memory_order_release);
             return;
         }
     }
@@ -57,7 +70,7 @@ void VSTreamAudioProcessor::setStreaming(bool enabled)
         webServer->stop();
     }
 
-    streaming.store(enabled && webServer != nullptr && webServer->isThreadRunning(),
+    streaming.store(enabled && webServer != nullptr && webServer->isRunning(),
                     std::memory_order_release);
 }
 
