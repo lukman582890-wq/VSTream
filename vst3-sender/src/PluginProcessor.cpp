@@ -83,7 +83,7 @@ void VSTreamAudioProcessor::setStreaming(bool enabled)
             return;
         }
 
-        if (!transport->start(sampleRate, sessionId))
+        if (!transport->start(sampleRate, sessionId.toStdString()))
         {
             webServer->stop();
             streamUrl.clear();
