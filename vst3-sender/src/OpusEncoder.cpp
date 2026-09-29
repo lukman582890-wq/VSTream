@@ -1,5 +1,5 @@
 #include "vstream/OpusEncoder.h"
-#include <opus/opus.h>
+#include <opus.h>
 namespace vstream {
 struct OpusEncoder::Impl { ::OpusEncoder* encoder=nullptr; int channels=2; };
 OpusEncoder::OpusEncoder():impl_(std::make_unique<Impl>()){}
