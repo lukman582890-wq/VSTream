@@ -1,5 +1,6 @@
 #include "PluginProcessor.h"
 #include "PluginEditor.h"
+#include "vstream/LocalWebServer.h"
 
 VSTreamAudioProcessor::VSTreamAudioProcessor()
  : AudioProcessor(BusesProperties().withInput("Input", juce::AudioChannelSet::stereo(), true)
@@ -37,11 +38,27 @@ void VSTreamAudioProcessor::setStreaming(bool enabled)
 {
     if (enabled && !streaming.load())
     {
-        auto session = vstream::createLocalSession("local");
+        auto session = vstream::createLocalSession("");
         sessionId = session.id;
         streamUrl = session.url;
+
+        if (!webServer)
+            webServer = std::make_unique<vstream::LocalWebServer>();
+
+        if (!webServer->start(session.port, sessionId))
+        {
+            streamUrl.clear();
+            sessionId.clear();
+            return;
+        }
     }
-    streaming.store(enabled, std::memory_order_release);
+    else if (!enabled && webServer)
+    {
+        webServer->stop();
+    }
+
+    streaming.store(enabled && webServer != nullptr && webServer->isThreadRunning(),
+                    std::memory_order_release);
 }
 
 juce::AudioProcessorEditor* VSTreamAudioProcessor::createEditor()
