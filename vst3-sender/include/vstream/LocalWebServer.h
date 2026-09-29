@@ -3,7 +3,6 @@
 #include <atomic>
 
 namespace vstream {
-
 class LocalWebServer final : private juce::Thread
 {
 public:
@@ -12,6 +11,7 @@ public:
 
     bool start(std::uint16_t port, const juce::String& sessionId);
     void stop();
+    bool isRunning() const noexcept { return running_.load(std::memory_order_acquire) && isThreadRunning(); }
 
 private:
     void run() override;
@@ -23,5 +23,4 @@ private:
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(LocalWebServer)
 };
-
-} // namespace vstream
+}
