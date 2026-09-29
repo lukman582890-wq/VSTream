@@ -3,6 +3,7 @@
 #include "vstream/AudioRingBuffer.h"
 #include "vstream/Session.h"
 #include "vstream/LocalWebServer.h"
+#include "vstream/OpusUdpTransport.h"
 
 class VSTreamAudioProcessor : public juce::AudioProcessor
 {
@@ -32,12 +33,16 @@ public:
     juce::String getStreamUrl() const { return streamUrl; }
     juce::String getSessionId() const { return sessionId; }
     float getInputPeak() const noexcept { return inputPeak.load(); }
+
 private:
     std::unique_ptr<vstream::AudioRingBuffer> ringBuffer;
     std::unique_ptr<vstream::LocalWebServer> webServer;
+    std::unique_ptr<vstream::OpusUdpTransport> transport;
     std::atomic<bool> streaming{false};
     std::atomic<float> inputPeak{0.0f};
     juce::String sessionId;
     juce::String streamUrl;
+    double sampleRate = 48000.0;
+
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(VSTreamAudioProcessor)
 };
