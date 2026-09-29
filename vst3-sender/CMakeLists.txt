@@ -44,7 +44,10 @@ target_sources(VSTream PRIVATE
     src/LocalWebServer.cpp
 )
 
-target_include_directories(VSTream PRIVATE include)
+target_include_directories(VSTream PRIVATE
+    include
+    ${opus_SOURCE_DIR}/include
+)
 target_link_libraries(VSTream PRIVATE
     juce::juce_audio_utils
     juce::juce_dsp
