@@ -24,4 +24,4 @@ Cubase VST3 Sender -> Opus/UDP transport -> Android Receiver
 
 ## Status
 
-Early development.
+VST3 Windows build pipeline verified; artifact packaging is being finalized.
