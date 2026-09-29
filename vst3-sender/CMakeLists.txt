@@ -11,7 +11,7 @@ juce_add_plugin(VSTream
     COPY_PLUGIN_AFTER_BUILD TRUE PLUGIN_MANUFACTURER_CODE VStr PLUGIN_CODE VStr
     FORMATS VST3 PRODUCT_NAME "VSTream")
 juce_generate_juce_header(VSTream)
-target_sources(VSTream PRIVATE src/PluginProcessor.cpp src/PluginEditor.cpp src/Session.cpp src/AudioRingBuffer.cpp src/UdpSender.cpp)
+target_sources(VSTream PRIVATE src/PluginProcessor.cpp src/PluginEditor.cpp src/Session.cpp src/AudioRingBuffer.cpp src/UdpSender.cpp src/LocalWebServer.cpp)
 target_include_directories(VSTream PRIVATE include)
 target_link_libraries(VSTream PRIVATE juce::juce_audio_utils juce::juce_dsp)
 find_path(OPUS_INCLUDE_DIR opus/opus.h)
