@@ -2,6 +2,7 @@
 #include <JuceHeader.h>
 #include "vstream/AudioRingBuffer.h"
 #include "vstream/Session.h"
+#include "vstream/LocalWebServer.h"
 
 class VSTreamAudioProcessor : public juce::AudioProcessor
 {
@@ -33,6 +34,7 @@ public:
     float getInputPeak() const noexcept { return inputPeak.load(); }
 private:
     std::unique_ptr<vstream::AudioRingBuffer> ringBuffer;
+    std::unique_ptr<vstream::LocalWebServer> webServer;
     std::atomic<bool> streaming{false};
     std::atomic<float> inputPeak{0.0f};
     juce::String sessionId;
