@@ -39,20 +39,33 @@ void LocalWebServer::run()
             continue;
 
         char request[4096] = {};
-        client->read(request, static_cast<int>(sizeof(request) - 1), true);
+        if (client->waitUntilReady(true, 1000) > 0)
+            client->read(request, static_cast<int>(sizeof(request) - 1), false);
 
-        const auto html =
-            "<!doctype html><html><head><meta name=\"viewport\" content=\"width=device-width,initial-scale=1\">"
-            "<title>VSTream</title></head><body style=\"font-family:sans-serif;text-align:center;padding:40px\">"
-            "<h1>VSTream</h1><p>Session <b>" + sessionId_ + "</b> is active.</p>"
-            "<p>VSTream sender is reachable on this local network.</p>"
-            "<p>Audio receiver connection endpoint is ready for the session.</p></body></html>";
+        const auto requestText = juce::String::fromUTF8(request);
+        const auto firstLine = requestText.upToFirstOccurrenceOf("\r\n", false, false);
+        const auto pathStart = firstLine.indexOfChar(' ') + 1;
+        const auto pathEnd = pathStart > 0 ? firstLine.indexOfChar(pathStart, ' ') : -1;
+        const auto path = (pathStart > 0 && pathEnd > pathStart)
+            ? firstLine.substring(pathStart, pathEnd)
+            : juce::String("/");
+
+        const bool validSessionPath = path == "/s/" + sessionId_ || path == "/health";
+        const auto status = validSessionPath ? "200 OK" : "404 Not Found";
+        const auto body =
+            validSessionPath
+                ? "<!doctype html><html><head><meta name=\"viewport\" content=\"width=device-width,initial-scale=1\">"
+                  "<title>VSTream</title></head><body style=\"font-family:sans-serif;text-align:center;padding:40px\">"
+                  "<h1>VSTream</h1><p>Session <b>" + sessionId_ + "</b> is active.</p>"
+                  "<p>Sender is reachable on the local network.</p>"
+                  "<p>Transport status: waiting for receiver.</p></body></html>"
+                : "<!doctype html><html><body><h1>404</h1></body></html>";
 
         const auto response =
-            "HTTP/1.1 200 OK\r\n"
+            "HTTP/1.1 " + juce::String(status) + "\r\n"
             "Content-Type: text/html; charset=utf-8\r\n"
-            "Content-Length: " + juce::String(html.getNumBytesAsUTF8()) + "\r\n"
-            "Connection: close\r\n\r\n" + html;
+            "Content-Length: " + juce::String(body.getNumBytesAsUTF8()) + "\r\n"
+            "Connection: close\r\n\r\n" + body;
 
         client->write(response.toRawUTF8(), response.getNumBytesAsUTF8());
         delete client;
