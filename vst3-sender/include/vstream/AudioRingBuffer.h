@@ -10,9 +10,13 @@ public:
     explicit AudioRingBuffer(std::size_t capacitySamples)
         : buffer_(capacitySamples), capacity_(capacitySamples) {}
 
-    bool push(const float* samples, std::size_t count) noexcept;
-    std::size_t pop(float* destination, std::size_t maxCount) noexcept;
-    std::size_t available() const noexcept;
+    bool pushInterleaved(const float* const* channels,
+                         int numChannels,
+                         std::size_t frames) noexcept;
+    std::size_t pop(float* destinationInterleaved,
+                    std::size_t maxFrames,
+                    int numChannels) noexcept;
+    std::size_t availableFrames(int numChannels) const noexcept;
 
 private:
     std::vector<float> buffer_;
