@@ -13,7 +13,6 @@ FetchContent_Declare(
 )
 FetchContent_MakeAvailable(JUCE)
 
-# VSTream requires libopus for the real network audio path.
 set(OPUS_BUILD_PROGRAMS OFF CACHE BOOL "" FORCE)
 set(OPUS_BUILD_TESTING OFF CACHE BOOL "" FORCE)
 set(OPUS_INSTALL_PKG_CONFIG_MODULE OFF CACHE BOOL "" FORCE)
@@ -41,6 +40,7 @@ target_sources(VSTream PRIVATE
     src/Session.cpp
     src/AudioRingBuffer.cpp
     src/OpusEncoder.cpp
+    src/OpusUdpTransport.cpp
     src/UdpSender.cpp
     src/LocalWebServer.cpp
 )
