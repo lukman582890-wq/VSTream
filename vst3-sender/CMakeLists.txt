@@ -19,9 +19,8 @@ set(OPUS_INSTALL_PKG_CONFIG_MODULE OFF CACHE BOOL "" FORCE)
 set(OPUS_INSTALL_CMAKE_CONFIG_MODULE OFF CACHE BOOL "" FORCE)
 FetchContent_Declare(
     Opus
-    GIT_REPOSITORY https://github.com/xiph/opus.git
-    GIT_TAG v1.6.1
-    GIT_SHALLOW TRUE
+    URL https://downloads.xiph.org/releases/opus/opus-1.6.1.tar.gz
+    URL_HASH SHA256=6ffcb593207be92584df15b32466ed64bbec99109f007c82205f0194572411a1
 )
 FetchContent_MakeAvailable(Opus)
 
