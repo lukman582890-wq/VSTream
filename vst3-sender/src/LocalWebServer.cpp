@@ -53,7 +53,7 @@ void LocalWebServer::run()
         const bool validSessionPath = path == "/s/" + sessionId_ || path == "/health";
         const auto status = validSessionPath ? "200 OK" : "404 Not Found";
         const auto appUrl = "vstream://connect?url=" + juce::URL::addEscapeChars(
-            "http://" + juce::String(listener_ != nullptr ? listener_->getHostName() : "") + ":" +
+            "http://" + juce::IPAddress::getLocalAddress(false).toString() + ":" +
             juce::String(port_) + "/s/" + sessionId_, true);
 
         const auto body =
