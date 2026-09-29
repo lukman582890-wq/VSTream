@@ -1,9 +1,21 @@
 #include "vstream/Session.h"
+#include <JuceHeader.h>
 #include <random>
 #include <sstream>
 #include <iomanip>
 
 namespace vstream {
+
+static std::string getLocalHostAddress()
+{
+    for (const auto& address : juce::IPAddress::getLocalAddresses())
+    {
+        const auto text = address.toString();
+        if (text != "127.0.0.1" && !text.startsWith("169.254."))
+            return text.toStdString();
+    }
+    return "127.0.0.1";
+}
 
 Session createLocalSession(const std::string& hostAddress)
 {
@@ -17,7 +29,9 @@ Session createLocalSession(const std::string& hostAddress)
     Session session;
     session.id = id.str();
     session.port = 45821;
-    session.url = "https://vstream.local/s/" + session.id;
+
+    const auto host = hostAddress.empty() ? getLocalHostAddress() : hostAddress;
+    session.url = "http://" + host + ":" + std::to_string(session.port) + "/s/" + session.id;
     return session;
 }
 
