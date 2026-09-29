@@ -22,12 +22,18 @@ jobs:
         shell: pwsh
         run: |
           New-Item -ItemType Directory -Force -Path artifacts | Out-Null
-          Get-ChildItem -Path build -Recurse -Filter *.vst3 | ForEach-Object {
-            Copy-Item $_.FullName -Destination artifacts -Recurse -Force
+          $bundles = Get-ChildItem -Path build -Recurse -Directory -Filter *.vst3 |
+            Where-Object { Test-Path (Join-Path $_.FullName "Contents") }
+          foreach ($bundle in $bundles) {
+            $dest = Join-Path "artifacts" $bundle.Name
+            if (Test-Path $dest) { Remove-Item $dest -Recurse -Force }
+            Copy-Item $bundle.FullName -Destination $dest -Recurse -Force
           }
-          if (-not (Get-ChildItem artifacts -Recurse -Filter *.vst3)) {
-            Write-Error "No VST3 artifact was produced."
+          $collected = Get-ChildItem -Path artifacts -Recurse -Directory -Filter *.vst3
+          if (-not $collected) {
+            Write-Error "No VST3 bundle was produced."
           }
+          $collected | ForEach-Object { Write-Host "Collected VST3: $($_.FullName)" }
 
       - name: Upload VST3
         uses: actions/upload-artifact@v4
